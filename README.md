@@ -18,6 +18,7 @@ tgen needs cxxtools, tntdb, boost_system, boost_filesystem
   
 
 + application 
+      - component      
       - model 
       - model/generated 
       - controllers
