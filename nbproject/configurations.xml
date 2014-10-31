@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="95">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>CController.h</itemPath>
+      <itemPath>CModel.h</itemPath>
+      <itemPath>CScaffold.h</itemPath>
+      <itemPath>CSystem.h</itemPath>
+      <itemPath>CView.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>CController.cpp</itemPath>
+      <itemPath>CModel.cpp</itemPath>
+      <itemPath>CScaffold.cpp</itemPath>
+      <itemPath>CSystem.cpp</itemPath>
+      <itemPath>CView.cpp</itemPath>
+      <itemPath>main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <standard>10</standard>
+        </cTool>
+        <ccTool>
+          <standard>8</standard>
+        </ccTool>
+        <linkerTool>
+          <commandLine>-lcxxtools -ltntdb -lboost_system -lboost_filesystem</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="CController.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CController.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CModel.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CModel.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CScaffold.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CScaffold.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CSystem.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CSystem.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="CController.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CController.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CModel.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CModel.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CScaffold.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CScaffold.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CSystem.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CSystem.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="CView.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="CView.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
