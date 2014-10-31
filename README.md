@@ -16,6 +16,8 @@ tgen needs cxxtools, tntdb, boost_system, boost_filesystem
 
 <code>tgen --parse-html</code>      create ecpp files for all html files  
   
+  
+Path structure
 
 + application 
       - component      
