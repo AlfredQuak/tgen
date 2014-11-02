@@ -6,9 +6,94 @@ CSystem::CSystem() {
 CSystem::~CSystem() {
 }
 
+void CSystem::createMakeIncludeEcpp() {
+    cxxtools::IniFile ini("config/settings.ini");
+
+    vector<string> includeString;
+    vector<string> cleanString;
+
+    auto f_exist = [] (string name) {
+        ifstream _f(name);
+        return _f ? false : true;
+    };
+
+    try {
+        ofstream ecppMakeInc("config/ecppMakeInclude.mk");
+        if (ecppMakeInc.is_open()) {
+            ecppMakeInc << ""
+                    "$(APP_NAME): \\\n";
+
+            boost::filesystem::path path = ".";
+            boost::filesystem::recursive_directory_iterator itr(path);
+
+            while (itr != boost::filesystem::recursive_directory_iterator()) {
+                if (itr->path().extension().compare(".ecpp") == 0) {
+                    string _t = itr->path().string();
+                    boost::replace_all(_t, ".ecpp", ".o");
+                    includeString.push_back(string("\t").append(_t));
+                    cleanString.push_back(string("\trm -rf ").append(_t));
+                    //ecppMakeInc << "\t" << _t << " \\\n";
+                }
+
+                if (itr->path().extension().compare(".cpp") == 0) {
+                    string _t = itr->path().string();
+                    boost::replace_all(_t, ".cpp", ".o");
+                    includeString.push_back(string("\t").append(_t));
+                    cleanString.push_back(string("\trm -rf ").append(_t));
+                    //ecppMakeInc << "\t" << _t << " \\\n";
+                }
+                ++itr;
+            }
+
+            path = "./config";
+
+            while (itr != boost::filesystem::recursive_directory_iterator()) {
+                if (itr->path().extension().compare(".h") == 0) {
+                    string _t = itr->path().string();
+                    boost::replace_all(_t, ".h", ".o");
+                    includeString.push_back(string("\t").append(_t));
+                    cleanString.push_back(string("\trm -rf ").append(_t));
+                    //ecppMakeInc << "\t" << _t << " \\\n";
+                }
+                ++itr;
+            }
+            ecppMakeInc << boost::algorithm::join(includeString, " \\\n");
+            ecppMakeInc << "\n\t${CXX} -o $@ $^ ${LDFLAGS}\n";
+            ecppMakeInc << "\n\nclean: \n" << boost::algorithm::join(cleanString, " \n");
+            ecppMakeInc << "\n\trm -rf $(APP_NAME)";
+            ecppMakeInc.close();
+        }
+
+        if (f_exist("Makefile")) {
+            ofstream ecppMake("Makefile");
+            if (ecppMake.is_open()) {
+                ecppMake << ""
+                        "ECPPC=/usr/bin/ecppc\n"
+                        "CXXFLAGS+=-I/usr/local/include -O2 -std=c++11\n"
+                        "LDFLAGS+=-L/usr/local/lib -ltntnet -lcxxtools\n"
+                        "APP_NAME=" << ini.getValue("settings", "projectname") << "\n"
+                        "\n"
+                        "all: .prebuild $(APP_NAME)\n"
+                        "\n"
+                        ".prebuild:\n"
+                        "\ttgen --create-make\n"
+                        "\n"
+                        "include config/ecppMakeInclude.mk\n"
+                        "\n"
+                        ".SUFFIXES: .ecpp\n"
+                        "\n"
+                        ".ecpp.cpp:\n"
+                        "\t${ECPPC} ${ECPPFLAGS} ${ECPPFLAGS_CPP} -o $@ $<\n";
+            }
+        }
+    } catch (...) {
+
+    }
+}
+
 tntdb::Connection CSystem::getTntDBConn() {
-    
-    cxxtools::IniFile ini("config/database.ini");
+
+    cxxtools::IniFile ini("config/settings.ini");
     string connectionstring;
 
     if (boost::to_upper_copy(
@@ -82,7 +167,7 @@ void CSystem::newProject(string projectName) {
 
     string main_file = "main.cpp";
     string index_html_f = "application/view/html/index.html";
-    string database_f = "config/database.ini";
+    string database_f = "config/settings.ini";
 
 
     if (f_exist(index_html_f)) {
@@ -144,6 +229,7 @@ void CSystem::newProject(string projectName) {
                     "#####################################\n"
                     "[settings]\n"
                     "connectiontype=dev\n"
+                    "projectname=" << projectName << "\n"
                     "#####################################\n"
                     "## database settings\n"
                     "#####################################\n"

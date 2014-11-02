@@ -38,9 +38,12 @@ int main(int argc, char* argv[]) {
         }
 
         // schalter
-        if (argc > 2) {
+        if (argc > 1) {
             if (string("--parse-html").compare(argv[1]) == 0) {
                 view.parseHtmlView();
+            }
+            if (string("--create-make").compare(argv[1]) == 0) {
+                my_system.createMakeIncludeEcpp();
             }
         }
 

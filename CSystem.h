@@ -28,6 +28,7 @@ public:
     static tntdb::Connection getTntDBConn();
     void newProject(string projectName);
     void mapping();
+    void createMakeIncludeEcpp();
 private:
 
 };

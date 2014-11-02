@@ -15,6 +15,8 @@ tgen needs cxxtools, tntdb, boost_system, boost_filesystem
 <code>tgen controller foobar</code> create foobar controller foobar 
 
 <code>tgen --parse-html</code>      create ecpp files for all html files  
+
+<code>tgen --create-make</code>     create makefile or if exists, update include makefile
   
   
 Path structure
