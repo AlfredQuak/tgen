@@ -88,7 +88,7 @@ void CSystem::createMakeIncludeEcpp() {
                 ecppMake << ""
                         "ECPPC=/usr/bin/ecppc\n"
                         "CXXFLAGS+=-I/usr/local/include -I./application/ -O2 -std=c++11\n"
-                        "LDFLAGS+=-L/usr/local/lib -ltntnet -lcxxtools\n"
+                        "LDFLAGS+=-L/usr/local/lib -ltntnet -ltntdb -lcxxtools\n"
                         "APP_NAME=" << ini.getValue("settings", "projectname") << "\n"
                         "\n"
                         "all: .prebuild $(APP_NAME)\n"
