@@ -181,7 +181,7 @@ void CSystem::newProject(string projectName) {
                     "    <!-- index.html -->\n"
                     "  </head>\n"
                     "  <body>\n"
-                    "    <p>your content</p>\n"
+                    "    <p>your index.html content</p>\n"
                     "  </body>\n"
                     "</html>\n\n";
             index_html.close();
@@ -200,10 +200,12 @@ void CSystem::newProject(string projectName) {
                     "#include <cxxtools/arg.h>\n\n"
                     "#include <iostream>\n"
                     "using namespace std;\n\n"
+                    "#include \"config/url_mapping.h\"\n\n"
                     "int main(int argc, char* argv[]) {\n"
                     "    try {\n"
                     "        std::set<std::string> filesProcessed;\n"
                     "        tnt::Tntnet app;\n"
+                    "        app.listen(8000);\n"
                     "        app.mapUrl(\"^/$\", \"index\");\n\n"
                     "        _mappingUrl(app);\n\n"
                     "        app.mapUrl(\"^/([^.]+)(\\\\..+)?\", \"$1\");\n"
@@ -266,6 +268,7 @@ void CSystem::newProject(string projectName) {
     CView myView;
     myView.parseHtmlView();
     this->mapping();
+    this->createMakeIncludeEcpp();
 }
 
 void CSystem::mapping() {

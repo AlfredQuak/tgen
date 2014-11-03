@@ -5,6 +5,32 @@ This is not stable! Use it on your own risk!
 
 tgen needs cxxtools, tntdb, boost_system, boost_filesystem
 
+Compile and install tgen
+========================  
+
+simply make tgen and copy tgen into /usr/bin . 
+
+<code>
+cd tgen
+make
+cp tgen /usr/bin
+sudo chmod +x /usr/bin/tgen
+</code>
+
+
+New tgen Project
+================
+
+Create a new tntnet standalone project:  
+<code>
+tgen new testproj  
+cd testproj  
+make  
+./testproj
+</code> 
+Open your webbrowser localhost:8000 and you see your index.html
+
+
 
 <code>tgen new foobar</code>        create tntnet foobar project structur
 
@@ -18,7 +44,8 @@ tgen needs cxxtools, tntdb, boost_system, boost_filesystem
 
 <code>tgen --create-make</code>     create makefile or if exists, update include makefile
   
-  
+
+
 Path structure
 
 + application 
@@ -28,9 +55,11 @@ Path structure
       - controllers
       - view
       - view/html
+      - view/html/index.html
       - view/ecpp
+      - view/ecpp/index.ecpp
 + config
-      - database.ini
+      - settings.ini
       - url_mapping.h
 + helper
 + lib

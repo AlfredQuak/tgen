@@ -59,7 +59,7 @@ void CView::createView(string view) {
                     "    <!-- " << view << ".html -->\n"
                     "  </head>\n"
                     "  <body>\n"
-                    "    <p>your content</p>\n"
+                    "    <p>your " << view << ".html content</p>\n"
                     "  </body>\n"
                     "</html>\n\n";
         } else {
