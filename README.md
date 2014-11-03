@@ -68,9 +68,9 @@ Path structure
 + log
 + plugin
 
-Todo:
+Todo
+====
 - create scaffold function
-- create makefile includes for ecpp
 - create makefiles for netbeans
 - create release mysql create table files
 - ...
