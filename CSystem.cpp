@@ -1,21 +1,21 @@
 /*
-* Copyright (C) 2014 Daniel Stecker
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License as
-* published by the Free Software Foundation; either version 3 of the
-* License, or any later version.
-*
-* This program is distributed in the hope that it will be useful, but
-* is provided AS IS, WITHOUT ANY WARRANTY; without even the implied
-* warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, and
-* NON-INFRINGEMENT. See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-*
-*/
+ * Copyright (C) 2014 Daniel Stecker
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * is provided AS IS, WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, and
+ * NON-INFRINGEMENT. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ *
+ */
 #include "CSystem.h"
 
 CSystem::CSystem() {
@@ -172,7 +172,8 @@ void CSystem::newProject(string projectName) {
     boost::filesystem::create_directories("lib");
     boost::filesystem::create_directories("log");
     boost::filesystem::create_directories("helper");
-    boost::filesystem::create_directories("application/view/html");
+    boost::filesystem::create_directories("application/view/html/img");
+    boost::filesystem::create_directories("application/view/html/scripts");
     boost::filesystem::create_directories("application/view/ecpp");
     boost::filesystem::create_directories("application/model/generate");
     boost::filesystem::create_directories("application/controllers");
@@ -186,7 +187,30 @@ void CSystem::newProject(string projectName) {
     string main_file = "main.cpp";
     string index_html_f = "application/view/html/index.html";
     string database_f = "config/settings.ini";
+    string give_static_f = "application/view/ecpp/giveStaticFile.ecpp";
 
+    if (f_exist(give_static_f)) {
+        ofstream give_static(give_static_f);
+        if (give_static.is_open()) {
+            give_static << ""
+                    "<%pre>\n"
+                    "#include <iostream>\n"
+                    "#include <fstream>\n"
+                    "#include <tnt/mimedb.h>\n"
+                    "</%pre>\n"
+                    "<%cpp>\n"
+                    "std::ifstream in((\"./application/view/html/\" + request.getPathInfo()).c_str());\n"
+                    "if (!in){\n"
+                    "  return DECLINED;\n"
+                    "}else{\n"
+                    "    tnt::MimeDb mimeDb(\"/etc/mime.types\");\n"
+                    "    reply.setContentType(mimeDb.getMimetype(request.getPathInfo()));\n"
+                    "    reply.out() << in.rdbuf();  // send the content of the ifstream to the page\n"
+                    "}\n"
+                    "</%cpp>\n";
+            give_static.close();
+        }
+    }
 
     if (f_exist(index_html_f)) {
         ofstream index_html(index_html_f);
