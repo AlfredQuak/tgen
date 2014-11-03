@@ -201,7 +201,14 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         gen_f_model_cpp << setFunction1;
         gen_f_model_cpp << getFunction1;
 
-        gen_f_model_cpp << "bool gen_model_"
+        gen_f_model_cpp <<
+                "gen_model_" << table << "::gen_model_" << table << "(){\n"
+                "\t;\n"
+                "}\n"
+                "gen_model_" << table << "::~gen_model_" << table << "(){\n"
+                "\t;\n"
+                "}\n"
+                "bool gen_model_"
                 << table << "::_create(tntdb::Connection conn){\n"
                 "\tif(this->isDirty){\n\t\ttry{\n"
                 "\t\t\ttntdb::Statement st = conn.prepare(\"INSERT INTO "
@@ -308,7 +315,13 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         ofstream f_model_cpp(string(string("application/model/").append(table).append("Model.cpp")).c_str());
         if (f_model_cpp.is_open()) {
             cout << "create application/model/" << table << "Model.cpp" << endl;
-            f_model_cpp << "#include \"" << table << "Model.h\"\n\n";
+            f_model_cpp << "#include \"model/" << table << "Model.h\"\n\n"
+                    "model_" << table << "::model_" << table << "(){\n"
+                    "\t;\n"
+                    "}\n"
+                    "model_" << table << "::~model_" << table << "(){\n"
+                    "\t;\n"
+                    "}\n";
         } else {
             cout << "Unable to write file.. " << endl;
         }
