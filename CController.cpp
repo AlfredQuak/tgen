@@ -47,14 +47,14 @@ void CController::createController(string controller) {
                     "#include <tnt/httpreply.h>\n"
                     "#include <cxxtools/log.h>\n\n"
                     "// include the model\n"
-                    "// #include \"model/" << controller << "Model.h>\n"
+                    "// #include \"model/" << controller << "Model.h\"\n"
                     "// define a log category\n"
                     "log_define(\"controller." << controller << "\");\n\n"
                     "// define a component which is callable from within tntnet.xml\n"
                     "class " << controller << "Controller : public tnt::Component\n"
                     "{\n"
                     "public:\n"
-                    "virtual unsigned operator() (tnt::HttpRequest&, tnt::HttpReply&, tnt::QueryParams&);\n"
+                    "\tunsigned operator() (tnt::HttpRequest& request, tnt::HttpReply& reply, tnt::QueryParams& qparam);\n"
                     "};\n"
                     "#endif  /* _CONTROLLER_" << boost::to_upper_copy(controller) << "_H */\n";
         } else {
