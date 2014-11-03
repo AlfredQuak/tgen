@@ -3,34 +3,35 @@ tgen
 tgen is a codegenerator for tntet, this is the first dev-version. Bugs, feature request please add to issues.  
 This is not stable! Use it on your own risk!
 
-tgen needs cxxtools, tntdb, boost_system, boost_filesystem
+
 
 Compile and install tgen
 ========================  
+tgen needs cxxtools, tntdb, boost_system, boost_filesystem.  
+simply make tgen and copy tgen into /usr/bin.   
 
-simply make tgen and copy tgen into /usr/bin . 
 
-<code>
-cd tgen
-make
-cp tgen /usr/bin
-sudo chmod +x /usr/bin/tgen
-</code>
+cd tgen  
+make  
+cp tgen /usr/bin  
+sudo chmod +x /usr/bin/tgen  
+
 
 
 New tgen Project
 ================
 
 Create a new tntnet standalone project:  
-<code>
+
 tgen new testproj  
 cd testproj  
 make  
-./testproj
-</code> 
+./testproj  
+
 Open your webbrowser localhost:8000 and you see your index.html
 
-
+tgen functions
+==============
 
 <code>tgen new foobar</code>        create tntnet foobar project structur
 
@@ -47,6 +48,7 @@ Open your webbrowser localhost:8000 and you see your index.html
 
 
 Path structure
+==============
 
 + application 
       - component      
@@ -66,9 +68,9 @@ Path structure
 + log
 + plugin
 
-Todo:
+Todo
+====
 - create scaffold function
-- create makefile includes for ecpp
 - create makefiles for netbeans
 - create release mysql create table files
 - ...
