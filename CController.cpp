@@ -71,7 +71,7 @@ void CController::createController(string controller) {
             cout << "create application/controllers/" << controller << "Controller.cpp" << endl;
             f_controller_cpp << ""
                     "#include \"" << controller << "Controller.h\"\n\n"
-                    "loginController::loginController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c){\n"
+                    "" << controller << "Controller::" << controller << "Controller(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c){\n"
                     "    ;\n"
                     "}\n\n"
                     "// A static factory is used to instantiate the component.\n"
