@@ -45,6 +45,7 @@ tgen functions
 
 <code>tgen --create-make</code>     create makefile or if exists, update include makefile
   
+<code>tgen --dump-mysql</code>      dump mysql database to config/mysqlCreate_dump.sql (needs mysqldump)
 
 
 Path structure

@@ -24,6 +24,25 @@ CSystem::CSystem() {
 CSystem::~CSystem() {
 }
 
+void CSystem::dumpMysql() {
+    cxxtools::IniFile ini("config/settings.ini");
+    string dumpMysql = string("mysqldump --add-drop-table --dump-date ")
+            .append(ini.getValue(ini.getValue("settings", "connectiontype"), "DatabaseName"))
+            .append(" --user='")
+            .append(ini.getValue(ini.getValue("settings", "connectiontype"), "UserName"))
+            .append("' --password='")
+            .append(ini.getValue(ini.getValue("settings", "connectiontype"), "Password"))
+            .append("'");
+    if (!ini.getValue(ini.getValue("settings", "connectiontype"), "Host").empty()) {
+        dumpMysql
+                .append(" --host ")
+                .append(ini.getValue(ini.getValue("settings", "connectiontype"), "Host"));
+    }
+
+    dumpMysql.append(" > config/mysqlCreate_dump.sql");
+    std::system(dumpMysql.c_str());
+}
+
 void CSystem::createMakeIncludeEcpp() {
     cxxtools::IniFile ini("config/settings.ini");
 
