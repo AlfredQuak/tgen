@@ -218,7 +218,10 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 ")\");\n"
                 "\t\t\tst\n\t"
                 << boost::algorithm::join(set_sql, "\n\t") <<
-                "\n\t\t\t.execute();\n\t\t}"
+                "\n\t\t\t.execute();\n"
+                "\t\t\tconn = tntdb::Connection();\n"
+                "\t\t\treturn true;\n"
+                "\t\t}"
                 "catch (const std::exception& e) {\n"
                 "\t\t\tstd::cerr << e.what() << std::endl;\n"
                 "\t\t\tconn = tntdb::Connection();\n"
