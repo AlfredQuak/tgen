@@ -47,6 +47,7 @@ public:
     void newProject(string projectName);
     void mapping();
     void createMakeIncludeEcpp();
+    void dumpMysql(); 
 private:
 
 };
