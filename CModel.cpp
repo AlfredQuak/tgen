@@ -26,6 +26,7 @@ static cxxtools::Regex s_text("^text$");
 static cxxtools::Regex s_int("^int\\(([0-9]+)\\)$");
 static cxxtools::Regex s_decimal("^decimal\\(([0-9]+),([0-9]+)\\)$");
 static cxxtools::Regex s_datetime("^datetime$");
+static cxxtools::Regex s_timestamp("^timestamp$");
 static cxxtools::Regex s_date("^date$");
 
 CModel::CModel() {
@@ -102,10 +103,21 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         }
         // datetime
         if (s_datetime.match(r[1].getString(), m)) {
-            setFunction += string("\tvoid set_").append(r[0].getString()).append("(string _datetime);\n");
-            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(string _datetime){\n");
+            setFunction += string("\tvoid set_").append(r[0].getString()).append("(tntdb::Datetime _datetime);\n");
+            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(tntdb::Datetime _datetime){\n");
             setFunction1 += "\tthis->isDirty = true;\n";
             setFunction1 += string("\tthis->").append(r[0].getString()).append(" = _datetime;\n}\n\n");
+
+            getFunction += string("\ttntdb::Datetime get_").append(r[0].getString()).append("();\n");
+            getFunction1 += string("tntdb::Datetime ");
+            member += string("\ttntdb::Datetime ").append(r[0].getString()).append(";\n");
+        }
+         // timestamp
+        if (s_timestamp.match(r[1].getString(), m)) {
+            setFunction += string("\tvoid set_").append(r[0].getString()).append("(string _timestamp);\n");
+            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(string _timestamp){\n");
+            setFunction1 += "\tthis->isDirty = true;\n";
+            setFunction1 += string("\tthis->").append(r[0].getString()).append(" = _timestamp;\n}\n\n");
 
             getFunction += string("\tstring get_").append(r[0].getString()).append("();\n");
             getFunction1 += string("string ");
@@ -113,14 +125,14 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         }
         // date
         if (s_date.match(r[1].getString(), m)) {
-            setFunction += string("\tvoid set_").append(r[0].getString()).append("(string _date);\n");
-            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(string _date){\n");
+            setFunction += string("\tvoid set_").append(r[0].getString()).append("(tntdb::Date _date);\n");
+            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(tntdb::Date _date){\n");
             setFunction1 += "\tthis->isDirty = true;\n";
             setFunction1 += string("\tthis->").append(r[0].getString()).append(" = _date;\n}\n\n");
 
-            getFunction += string("\tstring get_").append(r[0].getString()).append("();\n");
-            getFunction1 += string("string ");
-            member += string("\tstring ").append(r[0].getString()).append(";\n");
+            getFunction += string("\ttntdb::Date get_").append(r[0].getString()).append("();\n");
+            getFunction1 += string("tntdb::Date ");
+            member += string("\ttntdb::Date ").append(r[0].getString()).append(";\n");
         }
         // text
         if (s_text.match(r[1].getString(), m) || r[1].getString() == "longtext") {
@@ -215,6 +227,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "\ttntdb::Connection conn = CHelper::getTntDBConn();\n"
                 "\tif(this->isDirty){\n"
                 "\t\ttry{\n"
+                "\t\tthis->set_date_create(tntdb::Datetime::localtime());\n"
                 "\t\t\ttntdb::Statement st = conn.prepare(\"INSERT INTO "
                 << table << " (" << boost::algorithm::join(create_sql, ", ")
                 << ") VALUES (:"
@@ -238,10 +251,11 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "\tif(this->isDirty){\n"
                 "\ttntdb::Connection conn = CHelper::getTntDBConn();\n"
                 "\t\ttry{\n"
+                "\t\tthis->set_date_update(tntdb::Datetime::localtime());\n"
                 "\t\t\ttntdb::Statement st = conn.prepare(\"UPDATE " << table
                 << " SET "
                 << boost::algorithm::join(update_sql, ", ") <<
-                " WHERE id=:id)\");\n"
+                " WHERE id=:id\");\n"
                 "\t\t\tst\n\t"
                 << boost::algorithm::join(set_sql, "\n\t")
                 << "\n\t\t\t.execute();\n"
