@@ -106,7 +106,7 @@ void CSystem::createMakeIncludeEcpp() {
             if (ecppMake.is_open()) {
                 ecppMake << ""
                         "ECPPC=/usr/bin/ecppc\n"
-                        "CXXFLAGS+=-I/usr/local/include -I./application/ -I./helper -I./config -I./extern -I./lib --I./plugin -I./ O2 -std=c++11\n"
+                        "CXXFLAGS+=-I/usr/local/include -I./application/ -I./helper -I./config -I./extern -I./lib -I./plugin -I./ -O2 -std=c++11\n"
                         "LDFLAGS+=-L/usr/local/lib -ltntnet -ltntdb -lcxxtools\n"
                         "APP_NAME=" << ini.getValue("settings", "projectname") << "\n"
                         "\n"
