@@ -36,10 +36,102 @@ CModel::CModel() {
 CModel::~CModel() {
 }
 
+void CModel::createModelViewCrud(tntdb::Connection conn, string table) {
+    string sql = string("describe ").append(table);
+    string setFunction = "";
+    string retType = "";
+
+    string f_createView = string("component/crud/").append(table).append("/").append(table).append("CreateView");
+    string f_updateView = string("component/crud/").append(table).append("/").append(table).append("UpdateView");
+
+    CView *view = new CView();
+    view->createView(f_createView);
+    view->createView(f_updateView);
+    view->createView(string("component/crud/").append(table).append("/").append(table).append("ReadView"));
+    delete(view);
+
+    string create_string = string("<h1>Create</h1>\n\t<form method=\"post\" action=\"")
+            .append(table)
+            .append("/")
+            .append(table)
+            .append("Create\">\n")
+            .append("\t<ui>\n");
+    string update_string = string("<h1>Update</h1>\n\t<form method=\"post\" action=\"")
+            .append(table)
+            .append("/")
+            .append(table)
+            .append("Update\">\n")
+            .append("\t<ui>\n");
+
+    tntdb::Result result = conn.select(sql);
+    for (tntdb::Result::const_iterator it = result.begin(); it != result.end(); ++it) {
+        tntdb::Row r = *it;
+
+        create_string += string("\t\t<li>")
+                .append(r[0].getString())
+                .append("<input type=\"text\" name=\"")
+                .append(r[0].getString())
+                .append("\" id=\"")
+                .append(r[0].getString())
+                .append("\" value=\"")
+                //.append(name@example.com)
+                .append("\"></li>\n");
+
+        update_string += string("\t\t<li>")
+                .append(r[0].getString())
+                .append("<input type=\"text\" name=\"")
+                .append(r[0].getString())
+                .append("\" id=\"")
+                .append(r[0].getString())
+                .append("\" value=\"<$ arg_")
+                .append(r[0].getString())
+                .append(" $>\"></li>\n");
+    }
+    create_string += ""
+            "\t\t<li><button type=\"submit\" >save</button></li>\n"
+            "\t</ui>\n"
+            "\t</form>\n";
+    update_string += ""
+            "\t\t<li><button type=\"submit\" >save</button></li>\n"
+            "\t</ui>\n"
+            "\t</form>\n";
+
+    ofstream create_f(string("application/view/html/").append(f_createView).append(".html"));
+    if (create_f.is_open()) {
+        create_f << ""
+                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n"
+                "<html>\n"
+                "  <head>\n"
+                "    <title>" << f_createView << "</title>\n"
+                "    <!-- " << f_createView << " -->\n"
+                "  </head>\n"
+                "  <body>\n"
+                << create_string <<
+                "  </body>\n"
+                "</html>\n\n";
+    }
+
+    ofstream update_f(string("application/view/html/").append(f_updateView).append(".html"));
+    if (update_f.is_open()) {
+        update_f << ""
+                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n"
+                "<html>\n"
+                "  <head>\n"
+                "    <title>" << f_updateView << "</title>\n"
+                "    <!-- " << f_updateView << " -->\n"
+                "  </head>\n"
+                "  <body>\n"
+                << update_string <<
+                "  </body>\n"
+                "</html>\n\n";
+    }
+}
+
 void CModel::createModelCrud(tntdb::Connection conn, string table) {
-    
+
     this->createModel(conn, table);
-    
+    this->createModelViewCrud(conn, table);
+
     cxxtools::RegexSMatch m;
     string sql = string("describe ").append(table);
     string setFunction = "";
@@ -303,7 +395,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
             getFunction += string("\tdouble get_").append(r[0].getString()).append("();\n");
             getFunction1 += string("double ");
             member += string("\tdouble ").append(r[0].getString()).append(";\n");
-        } 
+        }
         // double
         if (s_double.match(r[1].getString(), m)) {
             setFunction += string("\tvoid set_").append(r[0].getString()).append("(double _d);\n");
