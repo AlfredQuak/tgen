@@ -28,11 +28,214 @@ static cxxtools::Regex s_decimal("^decimal\\(([0-9]+),([0-9]+)\\)$");
 static cxxtools::Regex s_datetime("^datetime$");
 static cxxtools::Regex s_timestamp("^timestamp$");
 static cxxtools::Regex s_date("^date$");
+static cxxtools::Regex s_double("^double$");
 
 CModel::CModel() {
 }
 
 CModel::~CModel() {
+}
+
+void CModel::createModelCrud(tntdb::Connection conn, string table) {
+    
+    this->createModel(conn, table);
+    
+    cxxtools::RegexSMatch m;
+    string sql = string("describe ").append(table);
+    string setFunction = "";
+    string retType = "";
+
+    tntdb::Result result = conn.select(sql);
+    for (tntdb::Result::const_iterator it = result.begin(); it != result.end(); ++it) {
+        tntdb::Row r = *it;
+        retType = r[1].getString();
+
+        if (s_varchar.match(r[1].getString(), m)) retType = "string"; // varchar
+        if (s_int.match(r[1].getString(), m)) retType = "int"; // int
+        if (s_u_int.match(r[1].getString(), m)) retType = "unsigned int"; // unsigned int
+        if (s_decimal.match(r[1].getString(), m)) retType = "double"; // decimal
+        if (s_datetime.match(r[1].getString(), m)) retType = "tntdb::Datetime"; // datetime
+        if (s_timestamp.match(r[1].getString(), m)) retType = "string"; // timestamp
+        if (s_date.match(r[1].getString(), m)) retType = "tntdb::Date"; // date
+        if (s_text.match(r[1].getString(), m) || r[1].getString() == "longtext") retType = "string"; // text
+        if (s_tinyint.match(r[1].getString(), m)) retType = "bool"; // tinyint
+
+        cout << retType << "=" << r[1].getString() << endl;
+
+        if (r[0].getString().compare("date_create") != 0
+                && r[0].getString().compare("date_update") != 0
+                ) {
+
+            setFunction += "\t\tif (qparam.arg<bool>(\"";
+            setFunction += r[0].getString();
+            setFunction += "\")) ";
+            setFunction += table;
+
+            if (retType.compare("tntdb::Datetime") == 0) {
+                setFunction += string("->set_")
+                        .append(r[0].getString())
+                        .append("(tntdb::Datetime::fromIso(qparam.param")
+                        .append("(\"")
+                        .append(r[0].getString())
+                        .append("\")));\n");
+            } else if (retType.compare("tntdb::Date") == 0) {
+                setFunction += string("->set_")
+                        .append(r[0].getString())
+                        .append("(tntdb::Datetime::fromIso(qparam.param")
+                        .append("(\"")
+                        .append(r[0].getString())
+                        .append("\").getDate()));\n");
+            } else {
+                setFunction += string("->set_")
+                        .append(r[0].getString())
+                        .append("(qparam.arg<")
+                        .append(retType)
+                        .append(">(\"")
+                        .append(r[0].getString())
+                        .append("\"));\n");
+            }
+        }
+    }
+
+    boost::filesystem::create_directories(string("application/controllers/crud/").append(table));
+    string create_h = string(string("application/controllers/crud/").append(table).append("/").append(table).append("CreateController.h"));
+    string create_cpp = string(string("application/controllers/crud/").append(table).append("/").append(table).append("CreateController.cpp"));
+
+    string update_h = string(string("application/controllers/crud/").append(table).append("/").append(table).append("UpdateController.h"));
+    string update_cpp = string(string("application/controllers/crud/").append(table).append("/").append(table).append("UpdateController.cpp"));
+
+    ofstream f_controller_h(create_h.c_str());
+    if (f_controller_h.is_open()) {
+        cout << "create " << create_h << endl;
+        f_controller_h << ""
+                "#ifndef _CONTROLLER_CREATE_" << boost::to_upper_copy(table) << "_H\n"
+                "#define _CONTROLLER_CREATE_" << boost::to_upper_copy(table) << "_H\n\n"
+                "#include <tnt/component.h>\n"
+                "#include <tnt/componentfactory.h>\n"
+                "#include <tnt/httprequest.h>\n"
+                "#include <tnt/httpreply.h>\n"
+                "#include <tntdb/datetime.h>\n"
+                "#include <cxxtools/conversionerror.h>\n"
+                "#include <cxxtools/log.h>\n\n"
+                "// include the model\n"
+                "#include \"model/" << table << "Model.h\"\n"
+                "// define a log category\n"
+                "log_define(\"controller.CrudCreate" << table << "\");\n\n"
+                "// define a component which is callable from within tntnet.xml\n"
+                "class " << table << "CreateController : public tnt::Component\n"
+                "{\n"
+                "public:\n"
+                "\t" << table << "CreateController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c);\n"
+                "\tvirtual unsigned operator() (tnt::HttpRequest& request, tnt::HttpReply& reply, tnt::QueryParams& qparam);\n"
+                "};\n"
+                "#endif  /* _CONTROLLER_CREATE_" << boost::to_upper_copy(table) << "_H */\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+
+    ofstream f_controller_cpp(create_cpp.c_str());
+    if (f_controller_cpp.is_open()) {
+        cout << "create " << create_cpp << endl;
+        f_controller_cpp << ""
+                "#include \"" << table << "CreateController.h\"\n\n"
+                "" << table << "CreateController::" << table << "CreateController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c){\n"
+                "    ;\n"
+                "}\n\n"
+                "// A static factory is used to instantiate the component.\n"
+                "// This also defines the name of the component, which is used\n"
+                "// in the mapping.\n"
+                "static tnt::ComponentFactoryImpl<" << table << "CreateController> factory(\"controllers/crud/" << table << "CreateController\");\n"
+                "// The operator() is the main method of the component. It is the\n"
+                "// starting point of our component.\n"
+                "unsigned " << table << "CreateController::operator() (tnt::HttpRequest& request,\n"
+                "					tnt::HttpReply& reply,\n"
+                "					tnt::QueryParams& qparam)\n"
+                "{\n"
+                "\t// This definition imports the _" << table << " variable from the\n"
+                "\t// session.\n"
+                "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"
+                "\tlog_debug(\"" << table << " controller called with qparam=\" << qparam.getUrl());\n"
+                "\t" << table << "Model *" << table << " = new " << table << "Model();\n"
+                "\ttry{\n"
+                << setFunction <<
+                "\t\tif (!" << table << "->_create()) std::cout << \"error create " << table << "\";\n"
+                "\t}catch(cxxtools::ConversionError &e){\n"
+                "\t\tcout << e.what() << endl;\n"
+                "\t}\n"
+                "\tdelete(" << table << ");\n"
+                "\treturn DECLINED;\n"
+                "}\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+    // update
+
+    ofstream fu_controller_h(update_h.c_str());
+    if (fu_controller_h.is_open()) {
+        cout << "create " << update_h << endl;
+        fu_controller_h << ""
+                "#ifndef _CONTROLLER_Update_" << boost::to_upper_copy(table) << "_H\n"
+                "#define _CONTROLLER_Update_" << boost::to_upper_copy(table) << "_H\n\n"
+                "#include <tnt/component.h>\n"
+                "#include <tnt/componentfactory.h>\n"
+                "#include <tnt/httprequest.h>\n"
+                "#include <tnt/httpreply.h>\n"
+                "#include <cxxtools/conversionerror.h>\n"
+                "#include <cxxtools/log.h>\n\n"
+                "// include the model\n"
+                "#include \"model/" << table << "Model.h\"\n"
+                "// define a log category\n"
+                "log_define(\"controller.CrudUpdate" << table << "\");\n\n"
+                "// define a component which is callable from within tntnet.xml\n"
+                "class " << table << "UpdateController : public tnt::Component\n"
+                "{\n"
+                "public:\n"
+                "\t" << table << "UpdateController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c);\n"
+                "\tvirtual unsigned operator() (tnt::HttpRequest& request, tnt::HttpReply& reply, tnt::QueryParams& qparam);\n"
+                "};\n"
+                "#endif  /* _CONTROLLER_UPDATE_" << boost::to_upper_copy(table) << "_H */\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+
+    ofstream fu_controller_cpp(update_cpp.c_str());
+    if (fu_controller_cpp.is_open()) {
+        cout << "update " << update_cpp << endl;
+        fu_controller_cpp << ""
+                "#include \"" << table << "UpdateController.h\"\n\n"
+                "" << table << "UpdateController::" << table << "UpdateController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c){\n"
+                "    ;\n"
+                "}\n\n"
+                "// A static factory is used to instantiate the component.\n"
+                "// This also defines the name of the component, which is used\n"
+                "// in the mapping.\n"
+                "static tnt::ComponentFactoryImpl<" << table << "UpdateController> factory(\"controllers/crud/" << table << "UpdateController\");\n"
+                "// The operator() is the main method of the component. It is the\n"
+                "// starting point of our component.\n"
+                "unsigned " << table << "UpdateController::operator() (tnt::HttpRequest& request,\n"
+                "					tnt::HttpReply& reply,\n"
+                "					tnt::QueryParams& qparam)\n"
+                "{\n"
+                "\t// This definition imports the _" << table << " variable from the\n"
+                "\t// session.\n"
+                "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"
+                "\tlog_debug(\"" << table << " controller called with qparam=\" << qparam.getUrl());\n"
+                "\t" << table << "Model *" << table << " = new " << table << "Model();\n"
+                "\ttry{\n"
+                << setFunction <<
+                "\t\tif (!" << table << "->_update()) std::cout << \"error update " << table << "\";\n"
+                "\t}catch(cxxtools::ConversionError &e){\n"
+                "\t\tcout << e.what() << endl;\n"
+                "\t}\n"
+                "\tdelete(" << table << ");\n"
+                "\treturn DECLINED;\n"
+                "}\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
 }
 
 /**
@@ -100,6 +303,17 @@ void CModel::createModel(tntdb::Connection conn, string table) {
             getFunction += string("\tdouble get_").append(r[0].getString()).append("();\n");
             getFunction1 += string("double ");
             member += string("\tdouble ").append(r[0].getString()).append(";\n");
+        } 
+        // double
+        if (s_double.match(r[1].getString(), m)) {
+            setFunction += string("\tvoid set_").append(r[0].getString()).append("(double _d);\n");
+            setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(double _d){\n");
+            setFunction1 += "\tthis->isDirty = true;\n";
+            setFunction1 += string("\tthis->").append(r[0].getString()).append(" = _d;\n}\n\n");
+
+            getFunction += string("\tdouble get_").append(r[0].getString()).append("();\n");
+            getFunction1 += string("double ");
+            member += string("\tdouble ").append(r[0].getString()).append(";\n");
         }
         // datetime
         if (s_datetime.match(r[1].getString(), m)) {
@@ -112,7 +326,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
             getFunction1 += string("tntdb::Datetime ");
             member += string("\ttntdb::Datetime ").append(r[0].getString()).append(";\n");
         }
-         // timestamp
+        // timestamp
         if (s_timestamp.match(r[1].getString(), m)) {
             setFunction += string("\tvoid set_").append(r[0].getString()).append("(string _timestamp);\n");
             setFunction1 += string("void gen_model_").append(table).append("::set_").append(r[0].getString()).append("(string _timestamp){\n");
@@ -367,10 +581,10 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         if (f_model_cpp.is_open()) {
             cout << "create application/model/" << table << "Model.cpp" << endl;
             f_model_cpp << "#include \"model/" << table << "Model.h\"\n\n"
-                    "model_" << table << "::model_" << table << "(){\n"
+                    "" << table << "Model::" << table << "Model(){\n"
                     "\t;\n"
                     "}\n"
-                    "model_" << table << "::~model_" << table << "(){\n"
+                    "" << table << "Model::~" << table << "Model(){\n"
                     "\t;\n"
                     "}\n";
         } else {

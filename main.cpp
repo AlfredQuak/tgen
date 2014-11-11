@@ -40,9 +40,13 @@ int main(int argc, char* argv[]) {
         cxxtools::Arg<std::string> string_model(argc, argv, "model");
         cxxtools::Arg<std::string> string_view(argc, argv, "view");
         cxxtools::Arg<std::string> string_newProject(argc, argv, "new");
+        cxxtools::Arg<std::string> string_crudModel(argc, argv, "crud");
 
         if (string_model.isSet()) {
             model.createModel(CSystem::getTntDBConn(), string_model);
+        }
+        if (string_crudModel.isSet()) {
+            model.createModelCrud(CSystem::getTntDBConn(), string_crudModel);
         }
         if (string_view.isSet()) {
             view.createView(string_view);

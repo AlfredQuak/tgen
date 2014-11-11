@@ -32,6 +32,7 @@ using namespace std;
 #include <tntdb/connect.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include <cxxtools/regex.h>
 
@@ -41,6 +42,7 @@ public:
     virtual ~CModel();
     
     void createModel(tntdb::Connection conn, string table);
+    void createModelCrud(tntdb::Connection conn, string table);
 private:
 
 };
