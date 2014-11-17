@@ -207,6 +207,7 @@ void CSystem::newProject(string projectName) {
     string index_html_f = "application/view/html/index.html";
     string database_f = "config/settings.ini";
     string give_static_f = "application/view/ecpp/giveStaticFile.ecpp";
+    string logging_f = "log.xml";
 
     if (f_exist(give_static_f)) {
         ofstream give_static(give_static_f);
@@ -262,7 +263,10 @@ void CSystem::newProject(string projectName) {
                     "#include <iostream>\n"
                     "using namespace std;\n\n"
                     "#include \"config/url_mapping.h\"\n\n"
+                    "log_define(\"" << projectName << "\")\n\n"
                     "int main(int argc, char* argv[]) {\n"
+                    "        log_init();\n"
+                    "        log_debug(\"starting app ... \");\n"
                     "    try {\n"
                     "        tnt::Tntnet app;\n"
                     "        app.listen(8000);\n"
@@ -328,6 +332,46 @@ void CSystem::newProject(string projectName) {
                     "#Password=\n"
                     "#ConnectOptions=\n";
             database_h.close();
+        }
+    }
+
+    if (f_exist(logging_f)) {
+        ofstream logging_xml(logging_f);
+        if (logging_xml.is_open()) {
+            logging_xml << ""
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                    "<!--\n"
+                    "  sample logging-properties for application sploindyBI\n"
+                    "  put this in sploindyBI.properties and use:\n"
+                    "    log_init(\"" << projectName << ".properties\");\n"
+                    "  in your application to initialize logging\n"
+                    "\n"
+                    "  define categories with:\n"
+                    "    log_define(\"some.category\")\n"
+                    "  this defines a static function, so you must put it outside other functions.\n"
+                    "  you can define a category per file or a category per namespace.\n"
+                    "\n"
+                    "  print logging-messages with:\n"
+                    "    log_fatal(\"some fatal message\");\n"
+                    "    log_error(\"some error message\");\n"
+                    "    log_warn(\"some warn message\");\n"
+                    "    log_info(\"some info message\");\n"
+                    "    log_debug(\"some debug message\");\n"
+                    "-->\n"
+                    "<logging>\n"
+                    "    <rootlogger>INFO</rootlogger>\n"
+                    "    <loggers>\n"
+                    "        <logger>\n"
+                    "            <category>" << projectName << "</category>\n"
+                    "            <level>INFO</level>\n"
+                    "        </logger>\n"
+                    "    </loggers>\n"
+                    "    <!-- <file>log/" << projectName << ".log</file> -->\n"
+                    "    <!-- <maxfilesize>1MB</maxfilesize> -->\n"
+                    "    <!-- <maxbackupindex>2</maxbackupindex> -->\n"
+                    "    <!-- <host>localhost:1234</host> --> <!--  # send log-messages with udp -->\n"
+                    "</logging>\n";
+            logging_xml.close();
         }
     }
 
