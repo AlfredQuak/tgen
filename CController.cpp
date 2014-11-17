@@ -84,6 +84,8 @@ void CController::createController(string controller) {
                     "					tnt::HttpReply& reply,\n"
                     "					tnt::QueryParams& qparam)\n"
                     "{\n"
+                    "// model shared var\n"
+                    "// TNT_REQUEST_SHARED_VAR( UserSession, s_userSession, ());\n\n"
                     "\t// This definition imports the _" << controller << " variable from the\n"
                     "\t// session.\n"
                     "\t//TNT_SESSION_GLOBAL_VAR(" << controller << ", _" << controller << ", ());\n"
