@@ -134,8 +134,13 @@ void CModel::createModelViewCrud(tntdb::Connection conn, string table) {
                 .append("\" id=\"")
                 .append(r[0].getString())
                 .append("\" value=\"<$ crud_")
-                .append(table).append("Model.get_").append(r[0].getString()).append("()")
-                .append(" $>\"></li>\n");
+                .append(table).append("Model.get_").append(r[0].getString()).append("()");
+
+        if (r[1].getString().compare("datetime") == 0 || r[1].getString().compare("date") == 0) {
+            update_string.append(".getIso()");
+        }
+
+        update_string.append(" $>\"></li>\n");
     }
     create_string += ""
             "\t\t<li><button type=\"submit\" >save</button></li>\n"
@@ -365,7 +370,7 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
                 "					tnt::QueryParams& qparam)\n"
                 "{\n"
                 "\t// model shared var\n"
-                "\tTNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
+                "\t//TNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
                 "\t// This definition imports the _" << table << " variable from the\n"
                 "\t// session.\n"
                 "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"
@@ -434,7 +439,7 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
                 "					tnt::QueryParams& qparam)\n"
                 "{\n"
                 "\t// model shared var\n"
-                "\tTNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
+                "\t//TNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
                 "\t// This definition imports the _" << table << " variable from the\n"
                 "\t// session.\n"
                 "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"

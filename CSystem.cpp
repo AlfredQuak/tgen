@@ -64,6 +64,10 @@ void CSystem::createMakeIncludeEcpp() {
             boost::filesystem::recursive_directory_iterator itr(path);
 
             while (itr != boost::filesystem::recursive_directory_iterator()) {
+                if (itr->path().filename() == "crud") {
+                    //std::cout << itr->path().filename() << std::endl;
+                    itr.no_push(); // don't recurse into this directory.
+                }
                 if (itr->path().extension().compare(".ecpp") == 0) {
                     string _t = itr->path().string();
                     boost::replace_all(_t, ".ecpp", ".o");

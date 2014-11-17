@@ -61,8 +61,7 @@ void CView::createView(string view) {
                     "<%args>\n\n</%args>\n"
                     "<%session>\n\n</%session>\n"
                     "<%request\n"
-                    "    scope=\"shared\"\n"
-                    "    >\n\n"
+                    "    scope=\"global\">\n"
                     "</%request>\n"
                     "<%cpp>\n\n</%cpp>\n\n"
                     "<%include>" << include_string << "</%include>\n\n";
