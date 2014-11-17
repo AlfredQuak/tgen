@@ -17,6 +17,7 @@
  *
  */
 #include "CModel.h"
+#include "CController.h"
 
 static cxxtools::Regex s_varchar("^varchar\\(([0-9]+)\\)$");
 static cxxtools::Regex s_tinyint("^tinyint\\(([0-9]+)\\)$");
@@ -38,16 +39,17 @@ CModel::~CModel() {
 
 void CModel::createModelViewCrud(tntdb::Connection conn, string table) {
     string sql = string("describe ").append(table);
-    string setFunction = "";
-    string retType = "";
+    //string setFunction = "";
+    //string retType = "";
 
     string f_createView = string("component/crud/").append(table).append("/").append(table).append("CreateView");
     string f_updateView = string("component/crud/").append(table).append("/").append(table).append("UpdateView");
+    string f_readView = string("component/crud/").append(table).append("/").append(table).append("ReadView");
 
     CView *view = new CView();
     view->createView(f_createView);
     view->createView(f_updateView);
-    view->createView(string("component/crud/").append(table).append("/").append(table).append("ReadView"));
+    view->createView(f_readView);
     delete(view);
 
     string create_string = string("<h1>Create</h1>\n\t<form method=\"post\" action=\"")
@@ -62,6 +64,54 @@ void CModel::createModelViewCrud(tntdb::Connection conn, string table) {
             .append(table)
             .append("Update\">\n")
             .append("\t<ui>\n");
+
+
+    ofstream ecpp_file(string(string("application/view/ecpp/component/crud/").append(table).append("/").append(table).append("ReadView.ecpp")).c_str());
+    string include_string = string("application/view/html/component/crud/").append(table).append("/").append(table).append("ReadView").append(".html");
+    boost::replace_all(include_string, "//", "/");
+
+    if (ecpp_file.is_open()) {
+        ecpp_file << ""
+                "<%pre>\n"
+                "    #include \"model/" << table << "Model.h\"\n"
+                "</%pre>\n"
+                "<%args>\n\n</%args>\n"
+                "<%session\n"
+                "    scope=\"global\">\n"
+                "</%session>\n"
+                "<%request\n"
+                "    scope=\"global\">\n"
+                "    " << table << "Model crud_" << table << "Model;\n"
+                "</%request>\n"
+                "<%cpp>\n\n</%cpp>\n\n"
+                "<%include>" << include_string << "</%include>\n\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+    ofstream u_ecpp_file(string(string("application/view/ecpp/component/crud/").append(table).append("/").append(table).append("UpdateView.ecpp")).c_str());
+    string u_include_string = string("application/view/html/component/crud/").append(table).append("/").append(table).append("UpdateView").append(".html");
+    boost::replace_all(u_include_string, "//", "/");
+
+    if (u_ecpp_file.is_open()) {
+        u_ecpp_file << ""
+                "<%pre>\n"
+                "    #include \"model/" << table << "Model.h\"\n"
+                "</%pre>\n"
+                "<%args>\n\n</%args>\n"
+                "<%session\n"
+                "    scope=\"global\">\n"
+                "</%session>\n"
+                "<%request\n"
+                "    scope=\"global\">\n"
+                "    " << table << "Model crud_" << table << "Model;\n"
+                "</%request>\n"
+                "<%cpp>\n\n</%cpp>\n\n"
+                "<%include>" << u_include_string << "</%include>\n\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
 
     tntdb::Result result = conn.select(sql);
     for (tntdb::Result::const_iterator it = result.begin(); it != result.end(); ++it) {
@@ -83,8 +133,8 @@ void CModel::createModelViewCrud(tntdb::Connection conn, string table) {
                 .append(r[0].getString())
                 .append("\" id=\"")
                 .append(r[0].getString())
-                .append("\" value=\"<$ arg_")
-                .append(r[0].getString())
+                .append("\" value=\"<$ crud_")
+                .append(table).append("Model.get_").append(r[0].getString()).append("()")
                 .append(" $>\"></li>\n");
     }
     create_string += ""
@@ -195,6 +245,9 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
 
     string update_h = string(string("application/controllers/crud/").append(table).append("/").append(table).append("UpdateController.h"));
     string update_cpp = string(string("application/controllers/crud/").append(table).append("/").append(table).append("UpdateController.cpp"));
+
+    string read_h = string(string("application/controllers/crud/").append(table).append("/").append(table).append("ReadController.h"));
+    string read_cpp = string(string("application/controllers/crud/").append(table).append("/").append(table).append("ReadController.cpp"));
 
     ofstream f_controller_h(create_h.c_str());
     if (f_controller_h.is_open()) {
@@ -311,6 +364,77 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
                 "					tnt::HttpReply& reply,\n"
                 "					tnt::QueryParams& qparam)\n"
                 "{\n"
+                "\t// model shared var\n"
+                "\tTNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
+                "\t// This definition imports the _" << table << " variable from the\n"
+                "\t// session.\n"
+                "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"
+                "\tlog_debug(\"" << table << " controller called with qparam=\" << qparam.getUrl());\n"
+                "\t" << table << "Model *" << table << " = new " << table << "Model();\n"
+                "\ttry{\n"
+                << setFunction <<
+                "\t\tif (!" << table << "->_update()) std::cout << \"error update " << table << "\";\n"
+                "\t}catch(cxxtools::ConversionError &e){\n"
+                "\t\tcout << e.what() << endl;\n"
+                "\t}\n"
+                "\tdelete(" << table << ");\n"
+                "\treturn DECLINED;\n"
+                "}\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+    // update
+
+    ofstream fr_controller_h(read_h.c_str());
+    if (fr_controller_h.is_open()) {
+        cout << "create " << read_h << endl;
+        fr_controller_h << ""
+                "#ifndef _CONTROLLER_READ_" << boost::to_upper_copy(table) << "_H\n"
+                "#define _CONTROLLER_READ_" << boost::to_upper_copy(table) << "_H\n\n"
+                "#include <tnt/component.h>\n"
+                "#include <tnt/componentfactory.h>\n"
+                "#include <tnt/httprequest.h>\n"
+                "#include <tnt/httpreply.h>\n"
+                "#include <cxxtools/conversionerror.h>\n"
+                "#include <cxxtools/log.h>\n\n"
+                "// include the model\n"
+                "#include \"model/" << table << "Model.h\"\n"
+                "// define a log category\n"
+                "log_define(\"controller.CrudRead" << table << "\");\n\n"
+                "// define a component which is callable from within tntnet.xml\n"
+                "class " << table << "ReadController : public tnt::Component\n"
+                "{\n"
+                "public:\n"
+                "\t" << table << "ReadController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c);\n"
+                "\tvirtual unsigned operator() (tnt::HttpRequest& request, tnt::HttpReply& reply, tnt::QueryParams& qparam);\n"
+                "};\n"
+                "#endif  /* _CONTROLLER_READ_" << boost::to_upper_copy(table) << "_H */\n";
+    } else {
+        cout << "Unable to write file.. " << endl;
+    }
+
+
+    ofstream fr_controller_cpp(read_cpp.c_str());
+    if (fr_controller_cpp.is_open()) {
+        cout << "update " << read_cpp << endl;
+        fr_controller_cpp << ""
+                "#include \"" << table << "ReadController.h\"\n\n"
+                "" << table << "ReadController::" << table << "ReadController(const tnt::Compident& a, const tnt::Urlmapper& b, tnt::Comploader& c){\n"
+                "    ;\n"
+                "}\n\n"
+                "// A static factory is used to instantiate the component.\n"
+                "// This also defines the name of the component, which is used\n"
+                "// in the mapping.\n"
+                "static tnt::ComponentFactoryImpl<" << table << "ReadController> factory(\"controllers/crud/" << table << "ReadController\");\n"
+                "// The operator() is the main method of the component. It is the\n"
+                "// starting point of our component.\n"
+                "unsigned " << table << "ReadController::operator() (tnt::HttpRequest& request,\n"
+                "					tnt::HttpReply& reply,\n"
+                "					tnt::QueryParams& qparam)\n"
+                "{\n"
+                "\t// model shared var\n"
+                "\tTNT_REQUEST_SHARED_VAR( " << table << "Model, crud_" << table << "Model, ());\n\n"
                 "\t// This definition imports the _" << table << " variable from the\n"
                 "\t// session.\n"
                 "\t//TNT_SESSION_GLOBAL_VAR(" << table << ", _" << table << ", ());\n"
