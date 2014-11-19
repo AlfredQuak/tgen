@@ -604,7 +604,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         res_get.push_back(string("row[\"") + r[0].getString().append("\"].get(this->") + r[0].getString().append(");"));
         set_sql.push_back(string("\t\t.set(\"").append(r[0].getString()).append("\", this->get_").append(r[0].getString()).append("())"));
     }
-
+    
     ofstream gen_f_model_h(string(string("application/model/generate/gen_model_").append(table).append(".h")).c_str());
     if (gen_f_model_h.is_open()) {
         cout << "create/update application/model/generate/gen_model_" << table << ".h" << endl;
@@ -626,7 +626,8 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "class gen_model_" << table << " {\n"
                 "public:\n"
                 "\tgen_model_" << table << "();\n"
-                "\tvirtual ~gen_model_" << table << "();\n\n"
+                "\tvirtual ~gen_model_" << table << "();\n"
+                "\tgen_model_" << table << " fillData(tntdb::Row &row);\n\n"
                 "\tbool _create();\n"
                 "\tbool _update();\n"
                 "\tbool _delete();\n"
@@ -755,7 +756,14 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "\t}\n"
                 "\treturn false;\n"
                 "}\n\n"
-                ;
+                "gen_model_" << table << " gen_model_" << table << "::fillData(tntdb::Row &row) {\n"
+                "\tgen_model_" << table << " _t;\n\t";
+        string s_t = boost::algorithm::join(res_get, "\n\t");
+        boost::replace_all(s_t, "this->", "_t.");
+        gen_f_model_cpp << s_t <<
+                "\n"
+                "\treturn _t;\n"
+                "}\n\n";
     } else {
         cout << "Unable to write file.. " << endl;
     }
