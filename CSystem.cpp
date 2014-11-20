@@ -48,12 +48,45 @@ void CSystem::createMakeIncludeEcpp() {
 
     vector<string> includeString;
     vector<string> cleanString;
+    vector<string> resources;
 
     auto f_exist = [] (string name) {
         ifstream _f(name);
         return _f ? false : true;
     };
+    try {
+        ofstream rescMakeInc("config/resourceMakeInclude.mk");
+        if (rescMakeInc.is_open()) {
+            rescMakeInc << ""
+                    ".resource: \n"
+                    "\tecppc -bb -z -I./application/view/html -p -o extern/resources -n resources \\\n";
 
+            boost::filesystem::path path = "./application/view/html/img";
+            boost::filesystem::recursive_directory_iterator itr(path);
+
+            while (itr != boost::filesystem::recursive_directory_iterator()) {
+                string _t = itr->path().string();
+                boost::replace_all(_t, "./application/view/html", "");
+                resources.push_back(string("\t").append(_t));
+                ++itr;
+            }
+            
+            path = "./application/view/html/scripts";
+            boost::filesystem::recursive_directory_iterator itr_1(path);
+            
+            while (itr_1 != boost::filesystem::recursive_directory_iterator()) {
+                string _t = itr_1->path().string();
+                boost::replace_all(_t, "./application/view/html", "");
+                resources.push_back(string("\t").append(_t));
+                ++itr_1;
+            }
+            rescMakeInc << boost::algorithm::join(resources, " \\\n");
+            rescMakeInc.close();
+        }
+
+    } catch (...) {
+
+    }
     try {
         ofstream ecppMakeInc("config/ecppMakeInclude.mk");
         if (ecppMakeInc.is_open()) {
