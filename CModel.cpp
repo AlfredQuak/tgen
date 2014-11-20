@@ -260,6 +260,8 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
         f_controller_h << ""
                 "#ifndef _CONTROLLER_CREATE_" << boost::to_upper_copy(table) << "_H\n"
                 "#define _CONTROLLER_CREATE_" << boost::to_upper_copy(table) << "_H\n\n"
+                "// define a log category\n"
+                "log_define(\"controller.CrudCreate" << table << "\");\n\n"
                 "#include <tnt/component.h>\n"
                 "#include <tnt/componentfactory.h>\n"
                 "#include <tnt/httprequest.h>\n"
@@ -269,8 +271,6 @@ void CModel::createModelCrud(tntdb::Connection conn, string table) {
                 "#include <cxxtools/log.h>\n\n"
                 "// include the model\n"
                 "#include \"model/" << table << "Model.h\"\n"
-                "// define a log category\n"
-                "log_define(\"controller.CrudCreate" << table << "\");\n\n"
                 "// define a component which is callable from within tntnet.xml\n"
                 "class " << table << "CreateController : public tnt::Component\n"
                 "{\n"
@@ -604,7 +604,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         res_get.push_back(string("row[\"") + r[0].getString().append("\"].get(this->") + r[0].getString().append(");"));
         set_sql.push_back(string("\t\t.set(\"").append(r[0].getString()).append("\", this->get_").append(r[0].getString()).append("())"));
     }
-    
+
     ofstream gen_f_model_h(string(string("application/model/generate/gen_model_").append(table).append(".h")).c_str());
     if (gen_f_model_h.is_open()) {
         cout << "create/update application/model/generate/gen_model_" << table << ".h" << endl;
@@ -619,10 +619,11 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "#include <cxxtools/log.h>\n\n"
                 "#include <tntdb/connect.h>\n\n"
                 "#include <string>\n"
-                "#include <iostream>\n\n"
+                "#include <iostream>\n"
                 "using namespace std;\n\n"
-                "log_define(\"model.gen_model_" << table << "\");\n\n"
                 "#include \"helper/CHelper.h\"\n\n"
+                "namespace TGEN_MODEL_" << boost::to_upper_copy(table) << " {\n"
+                "log_define(\"model.gen_model_" << table << "\");\n\n"
                 "class gen_model_" << table << " {\n"
                 "public:\n"
                 "\tgen_model_" << table << "();\n"
@@ -639,8 +640,8 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "private:\n"
                 << member <<
                 "\tbool isDirty;\n"
-                "};\n";
-        gen_f_model_h << "#endif  /* _GEN_MODEL_" << boost::to_upper_copy(table) << "_H */\n";
+                "};\n}\n";
+        gen_f_model_h << "#endif  /* _GEN_MODEL_" << boost::to_upper_copy(table) << "_H */";
     } else {
         cout << "Unable to write file.. " << endl;
     }
@@ -648,7 +649,8 @@ void CModel::createModel(tntdb::Connection conn, string table) {
     ofstream gen_f_model_cpp(string(string("application/model/generate/gen_model_").append(table).append(".cpp")).c_str());
     if (gen_f_model_cpp.is_open()) {
         cout << "create/update application/model/generate/gen_model_" << table << ".cpp" << endl;
-        gen_f_model_cpp << "#include \"model/generate/gen_model_" << table << ".h\"\n\n";
+        gen_f_model_cpp << "#include \"model/generate/gen_model_" << table << ".h\"\n\n"
+                "namespace TGEN_MODEL_" << boost::to_upper_copy(table) << " {\n";
         gen_f_model_cpp << setFunction1;
         gen_f_model_cpp << getFunction1;
 
@@ -763,7 +765,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
         gen_f_model_cpp << s_t <<
                 "\n"
                 "\treturn _t;\n"
-                "}\n\n";
+                "}\n\n}\n";
     } else {
         cout << "Unable to write file.. " << endl;
     }
@@ -792,7 +794,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                     "#include <iostream>\n\n"
                     "using namespace std;\n\n"
                     "#include \"model/generate/gen_model_" << table << ".h\"\n\n"
-                    "class " << table << "Model : public gen_model_" << table << "  {\n"
+                    "class " << table << "Model : public TGEN_MODEL_" << boost::to_upper_copy(table) << "::gen_model_" << table << "  {\n"
                     "public:\n"
                     "\t" << table << "Model();\n"
                     "\tvirtual ~" << table << "Model();\n\n"
