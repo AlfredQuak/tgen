@@ -675,6 +675,7 @@ void CModel::createModel(tntdb::Connection conn, string table) {
                 "\t\t\tst\n\t"
                 << boost::algorithm::join(set_sql, "\n\t") <<
                 "\n\t\t\t.execute();\n"
+                "\t\t\tthis->set_id(conn.lastInsertId());\n"
                 "\t\t\tconn = tntdb::Connection();\n"
                 "\t\t\treturn true;\n"
                 "\t\t}"
