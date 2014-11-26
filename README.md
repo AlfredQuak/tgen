@@ -43,10 +43,11 @@ tgen functions
 
 <code>tgen --parse-html</code>      create ecpp files for all html files  
 
-<code>tgen --create-make</code>     create makefile or if exists, update include makefile
+<code>tgen --create-make</code>     create makefile or if exists, update include makefile, create resource cpp file for all files in html/scripts and html/img view folder
   
 <code>tgen --dump-mysql</code>      dump mysql database to config/mysqlCreate_dump.sql (needs mysqldump)
 
+<code>tgen db table foobar</code>      create basic table structure in database
 
 Path structure
 ==============
