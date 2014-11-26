@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/CController.o \
+	${OBJECTDIR}/CDatabase.o \
 	${OBJECTDIR}/CModel.o \
 	${OBJECTDIR}/CScaffold.o \
 	${OBJECTDIR}/CSystem.o \
@@ -71,6 +72,11 @@ ${OBJECTDIR}/CController.o: CController.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/CController.o CController.cpp
+
+${OBJECTDIR}/CDatabase.o: CDatabase.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/CDatabase.o CDatabase.cpp
 
 ${OBJECTDIR}/CModel.o: CModel.cpp 
 	${MKDIR} -p ${OBJECTDIR}

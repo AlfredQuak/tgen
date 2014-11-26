@@ -27,12 +27,14 @@ using namespace std;
 #include "CView.h"
 #include "CSystem.h"
 #include "CController.h"
+#include "CDatabase.h"
 
 int main(int argc, char* argv[]) {
     CModel model;
     CView view;
     CSystem my_system;
     CController controller;
+    CDatabase database;
 
     try {
         //cxxtools::Arg<std::string> string_scaffold(argc, argv, '-scaffold');
@@ -68,6 +70,11 @@ int main(int argc, char* argv[]) {
             }
             if (string("--dump-mysql").compare(argv[1]) == 0) {
                 my_system.dumpMysql();
+            }
+            if (string("db").compare(argv[1]) == 0) {
+                if(string("table").compare(argv[2]) == 0){
+                    database.createTable(CSystem::getTntDBConn(),argv[3]);
+                }
             }
         }
 
