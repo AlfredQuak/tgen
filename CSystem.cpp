@@ -106,6 +106,9 @@ void CSystem::createMakeIncludeEcpp() {
                     boost::replace_all(_t, ".ecpp", ".o");
                     includeString.push_back(string("\t").append(_t));
                     cleanString.push_back(string("\trm -rf ").append(_t));
+                    
+                    boost::replace_all(_t, ".o", ".cpp");
+                    cleanString.push_back(string("\trm -rf ").append(_t));
                     //ecppMakeInc << "\t" << _t << " \\\n";
                 }
 
