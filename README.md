@@ -1,7 +1,7 @@
 tgen
 ====
 tgen is a codegenerator for tntet, this is the first dev-version. Bugs, feature request please add to issues.  
-This is not stable! Use it on your own risk!
+This is alpha! Use it on your own risk!
 
 
 
