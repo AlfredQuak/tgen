@@ -46,14 +46,14 @@ void CView::createView(string view) {
         boost::filesystem::create_directories(create_path_ecpp);
     }
 
-    if (f_exist(string(string("application/view/ecpp/").append(view).append(".ecpp")).c_str())) {
-        ofstream ecpp_file(string(string("application/view/ecpp/").append(view).append(".ecpp")).c_str());
+    if (f_exist(string(string("application/view/ecpp/").append(view).append("View.ecpp")).c_str())) {
+        ofstream ecpp_file(string(string("application/view/ecpp/").append(view).append("View.ecpp")).c_str());
 
-        string include_string = string("application/view/html/").append(view).append(".html");
+        string include_string = string("application/view/html/").append(view).append("View.html");
         boost::replace_all(include_string, "//", "/");
 
         if (ecpp_file.is_open()) {
-            cout << "create application/view/ecpp/" << view << ".ecpp" << endl;
+            cout << "create application/view/ecpp/" << view << "View.ecpp" << endl;
             ecpp_file << ""
                     "<%pre>\n"
                     "\n"
@@ -69,13 +69,13 @@ void CView::createView(string view) {
             cout << "Unable to write file.. " << endl;
         }
     } else {
-        cout << "Unable to write file application/view/ecpp/" << view << ".ecpp (exist ?)" << endl;
+        cout << "Unable to write file application/view/ecpp/" << view << "View.ecpp (exist ?)" << endl;
     }
 
-    if (f_exist(string(string("application/view/html/").append(view).append(".html")).c_str())) {
-        ofstream html_file(string(string("application/view/html/").append(view).append(".html")).c_str());
+    if (f_exist(string(string("application/view/html/").append(view).append("View.html")).c_str())) {
+        ofstream html_file(string(string("application/view/html/").append(view).append("View.html")).c_str());
         if (html_file.is_open()) {
-            cout << "create application/view/html/" << view << ".html" << endl;
+            cout << "create application/view/html/" << view << "View.html" << endl;
             html_file << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n"
                     "<html>\n"
                     "  <head>\n"
@@ -90,7 +90,7 @@ void CView::createView(string view) {
             cout << "Unable to write file.. " << endl;
         }
     } else {
-        cout << "Unable to write file application/view/html/" << view << ".html (exist ?)" << endl;
+        cout << "Unable to write file application/view/html/" << view << "View.html (exist ?)" << endl;
     }
 }
 
